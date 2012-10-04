@@ -1,0 +1,42 @@
+<launch>
+
+<!--
+ This file includes the parts of the MARV cv.launch file which implemented
+ the fakelaser pkg. 
+
+ It assumes the presence of a robot model describing the transform to 
+ camera_link.
+
+ Author: Robert Cofield
+ -->
+
+    <!-- THROTTLING -->
+    <node pkg="nodelet" type="nodelet" name="pointcloud_throttle" args="load fakelaser/CloudThrottle openni_manager" respawn="true">
+        <!-- <param name="max_rate" value="$(arg fake_laser_frequency)"/> -->
+        <param name="max_rate" value="100"/>
+        <param name="frame_id" value="/base_link"/>
+        <remap from="cloud_in" to="/camera/depth/points"/>
+        <remap from="cloud_out" to="cloud_throttled"/>
+    </node>
+
+    <!-- Fake Laser Lo .06985m above-->
+    <node pkg="nodelet" type="nodelet" name="fake_laser_lo" args="load fakelaser/CloudToScan openni_manager" respawn="true">
+        <param name="output_frame_id" value="/asus_laser_lo"/>
+        <!-- <param name="frame_id" value="base_footprint"/> -->
+        <remap from="cloud" to="/cloud_throttled"/>
+        <remap from="fakescan" to="asus/scan_lo"/>
+        <param name="min_height" value="0.06885"/>
+        <param name="max_height" value="0.07085"/>
+    </node>
+
+    <!-- Fake Laser Hi .1016m above groun-->
+    <node pkg="nodelet" type="nodelet" name="fake_laser_hi" args="load fakelaser/CloudToScan openni_manager" respawn="true">
+        <param name="output_frame_id" value="/asus_laser_hi"/>
+        <!-- <param name="frame_id" value="base_footprint"/> -->
+        <remap from="cloud" to="/cloud_throttled"/>
+        <remap from="fakescan" to="asus/scan_hi"/>
+        <param name="min_height" value="0.1006"/>
+        <param name="max_height" value="0.1026"/>
+    </node>
+
+</launch>
